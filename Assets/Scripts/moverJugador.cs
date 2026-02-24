@@ -18,6 +18,14 @@ public class moverJugador : MonoBehaviour
 
     void Start()
     {
+        // Si hay otro controlador de movimiento (`Logica_player`) en el mismo GameObject,
+        // desactivar este script para evitar conflictos de movimiento y fÃ­sicas.
+        if (GetComponent<Logica_player>() != null)
+        {
+            enabled = false;
+            return;
+        }
+
         bocina = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody>();
         textoPuntos = GameObject.Find("txtPuntos").GetComponent<TextMeshProUGUI>();
@@ -44,7 +52,7 @@ public class moverJugador : MonoBehaviour
 
             textoPuntos.text = "Puntos: " + puntos;// Actualizar el texto de puntos en la interfaz de usuario
             Destroy(obj);
-            if (puntos >= 30)// Si los puntos del jugador son menores o iguales a 0, cargar la escena de Game Over (escena con índice 1)
+            if (puntos >= 30)// Si los puntos del jugador son menores o iguales a 0, cargar la escena de Game Over (escena con ï¿½ndice 1)
             {
                 SceneManager.LoadScene(1);
             }
