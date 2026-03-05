@@ -13,61 +13,82 @@ public class Logica_player : MonoBehaviour
     public AudioClip sonidoPuntos;
     public AudioClip sonidoNegativo;
     Rigidbody rb;
-    public float speed = 5f; // Velocidad de movimiento del jugador
-    public float rotationSpeed = 200.0f; // Velocidad de rotación del jugador
-    public float jumpForce = 5f; // Fuerza de salto del jugador
-    private Animator animator; // Referencia al componente Animator del jugador
-    public float x , y; // Variables para almacenar la entrada del jugador
-    // Start is called before the first frame update
+    public float speed = 5f;
+    public float rotationSpeed = 200.0f;
+    public float jumpForce = 5f;
+    private Animator animator;
+    public float x , y;
+    private float moveInput = 0f;
+    private float turnInput = 0f;
+
     void Start()
     {
-        animator = GetComponent<Animator>(); // Obtener el componente Animator del jugador
+        animator = GetComponent<Animator>();
         bocina = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody>();
         textoPuntos = GameObject.Find("txtPuntos").GetComponent<TextMeshProUGUI>();
         textoPuntos.text = "Puntos: " + puntos;
+        speed = velocidad;
+
+       
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.angularDrag = 5f;
+        rb.maxAngularVelocity = 2f;
     }
 
-    // Update is called once per frame
+ 
     void Update()
     {
-        x = Input.GetAxis("Horizontal"); // Obtener la entrada horizontal del jugador
-        y = Input.GetAxis("Vertical"); // Obtener la entrada vertical del jugador
+        x = Input.GetAxis("Horizontal");
+        y = Input.GetAxis("Vertical");
 
-        transform.Rotate(0, x * rotationSpeed * Time.deltaTime, 0); // Rotar el jugador en el eje Y según la entrada horizontal
-        transform.Translate(0, 0, y * speed * Time.deltaTime); // Mover el jugador hacia adelante o hacia atrás según la entrada vertical
+        turnInput = x;
+        moveInput = y;
 
         animator.SetFloat("SpeedX", x);
         animator.SetFloat("SpeedY", y);
+    }
 
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+    void FixedUpdate()
+    {
+        Quaternion turn = Quaternion.Euler(0f, turnInput * rotationSpeed * Time.fixedDeltaTime, 0f);
+        rb.MoveRotation(rb.rotation * turn);
 
-        Vector3 movimiento = new Vector3(horizontal, 0f, vertical) * velocidad * Time.deltaTime;
-        rb.MovePosition(rb.position + movimiento);
+        Vector3 movement = transform.forward * moveInput * speed * Time.fixedDeltaTime;
+        rb.MovePosition(rb.position + movement);
+
+        Vector3 ang = rb.angularVelocity;
+        ang.x = 0f;
+        ang.z = 0f;
+        rb.angularVelocity = ang;
+
+        float yAngle = rb.rotation.eulerAngles.y;
+        rb.MoveRotation(Quaternion.Euler(0f, yAngle, 0f));
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        GameObject obj = collision.gameObject;// Obtener el objeto con el que colisionamos (puede ser un punto o un restapunto)
+        GameObject obj = collision.gameObject;
 
-        if (obj.CompareTag("Puntos")) // Si el objeto tiene la etiqueta "Puntos" 
+        if (obj.CompareTag("Puntos"))
         {
-            puntos += obj.GetComponent<Puntos>().puntos; // Sumar los puntos del objeto al total de puntos del jugador
+            puntos += obj.GetComponent<Puntos>().puntos;
             bocina.PlayOneShot(sonidoPuntos);
 
-            textoPuntos.text = "Puntos: " + puntos;// Actualizar el texto de puntos en la interfaz de usuario
+            textoPuntos.text = "Puntos: " + puntos;
             Destroy(obj);
-            if (puntos >= 30)// Si los puntos del jugador son menores o iguales a 0, cargar la escena de Game Over (escena con índice 1)
+            if (puntos >= 30)
             {
                 SceneManager.LoadScene(1);
             }
         }
-        else if (obj.CompareTag("RestPuntos"))// Si el objeto tiene la etiqueta "RestPuntos"
+        else if (obj.CompareTag("RestPuntos"))
         {
-            puntos -= obj.GetComponent<RestPuntos>().puntos;// Restar los puntos del objeto al total de puntos del jugador 
+            puntos -= obj.GetComponent<Puntos>().puntos;
             bocina.PlayOneShot(sonidoNegativo);
-            textoPuntos.text = "Puntos: " + puntos;// Actualizar el texto de puntos en la interfaz de usuario
+            textoPuntos.text = "Puntos: " + puntos;
             Destroy(obj);
 
 
