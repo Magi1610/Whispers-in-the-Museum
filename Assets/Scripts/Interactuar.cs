@@ -17,15 +17,20 @@ public class Interactuar : MonoBehaviour
     {
         if (jugadorCerca && Input.GetKeyDown(KeyCode.E))
         {
-            if (dialogo.EstaActivo())  // ? si el diálogo ya está abierto
+            if (!dialogo.EstaActivo())
             {
-                dialogo.SiguienteLinea();  // ? avanza línea
+                textoInteractuar.SetActive(false);
+                dialogo.IniciarDialogo();
             }
             else
             {
                 textoInteractuar.SetActive(false);
                 dialogo.IniciarDialogo();  // ? abre el diálogo
             }
+        }
+        if (dialogo.EstaActivo() && Input.anyKeyDown)
+        {
+            dialogo.SiguienteLinea();
         }
     }
 
