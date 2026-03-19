@@ -1,75 +1,53 @@
+Ôªøusing Unity.VisualScripting;
 using UnityEngine;
 
 public class Pickup : MonoBehaviour
 {
-    public float distance = 10f;      // Aumentamos a 10
-    public GameObject heldObject;
-    public Transform holdPoint;
-    public Camera playerCamera;       // Arrastra TU c·mara aquÌ manualmente
+    public GameObject obj_pos;
 
+    private GameObject pickedObject = null;
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+       if (Input.GetKey("r"))
         {
-            Debug.Log("E presionado");
+            pickedObject.GetComponent<Rigidbody>().useGravity = true;
+            pickedObject.GetComponent<Rigidbody>().isKinematic = false;
+            pickedObject.gameObject.transform.SetParent(null);
+            pickedObject = null;
 
-            // Usa playerCamera si la asignaste, si no usa Camera.main
-            Camera cam = playerCamera != null ? playerCamera : Camera.main;
-
-            Ray ray = new Ray(cam.transform.position, cam.transform.forward);
-            RaycastHit hit;
-
-            Debug.DrawRay(cam.transform.position, cam.transform.forward * distance, Color.red, 2f);
-
-            if (Physics.Raycast(ray, out hit, distance))
-            {
-                Debug.Log("GOLPE”: " + hit.collider.name + " | Tag: " + hit.collider.tag);
-
-                if (heldObject == null)
-                    TryPickup(hit);
-                else
-                    PlaceObject(hit);
-            }
-            else
-            {
-                Debug.LogWarning("Rayo no golpeÛ nada");
-            }
         }
 
-        if (heldObject != null && holdPoint != null)
-        {
-            heldObject.transform.position = holdPoint.position;
-            heldObject.transform.rotation = holdPoint.rotation;
-        }
+
+
     }
 
-    void TryPickup(RaycastHit hit)
+
+    private void OnTriggerStay(Collider other)
     {
-        if (hit.collider.CompareTag("Pickup"))
+       if (other.gameObject.CompareTag("Pickup"))
         {
-            heldObject = hit.collider.gameObject;
-            heldObject.transform.SetParent(holdPoint);
+            if (Input.GetKey("e") && pickedObject == null)
+            {
+                other.GetComponent<Rigidbody>().useGravity = false;
+                other.GetComponent<Rigidbody>().isKinematic= true;
+                other.transform.position = obj_pos.transform.position;
+                other.gameObject.transform.SetParent(obj_pos.gameObject.transform);
+                pickedObject = other.gameObject;
 
-            Rigidbody rb = heldObject.GetComponent<Rigidbody>();
-            if (rb != null) rb.isKinematic = true;
 
-            Debug.Log("Objeto agarrado: " + heldObject.name);
+            }
+        }
+        // Mover objeto a la mano suavemente (sin SetParent)
+        if (pickedObject != null && obj_pos != null) // ‚Üê agregar && obj_pos != null
+        {
+            pickedObject.transform.position = Vector3.Lerp(
+                pickedObject.transform.position,
+                obj_pos.transform.position,
+                Time.deltaTime * 15f
+            );
+            pickedObject.transform.rotation = obj_pos.transform.rotation;
         }
     }
 
-    void PlaceObject(RaycastHit hit)
-    {
-        if (hit.collider.CompareTag("Wall"))
-        {
-            Rigidbody rb = heldObject.GetComponent<Rigidbody>();
-            if (rb != null) rb.isKinematic = false;
 
-            heldObject.transform.SetParent(null);
-            heldObject.transform.position = hit.point;
-            heldObject.transform.rotation = Quaternion.LookRotation(hit.normal);
-            heldObject = null;
-
-            Debug.Log("Objeto colocado en la pared");
-        }
-    }
 }
