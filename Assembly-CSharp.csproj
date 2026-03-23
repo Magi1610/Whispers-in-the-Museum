@@ -103,8 +103,6 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ShaderPropAnimator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
     <Compile Include="Assets\FerociousIndustries\PBRDinosaurs\PBRVelociraptor\Scripts\RaptorSoundEffects.cs" />
-    <Compile Include="Assets\Scripts\Interactuar.cs" />
-    <Compile Include="Assets\Scripts\Dialogo.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark03.cs" />
     <Compile Include="Assets\Scripts\moverJugador.cs" />
     <Compile Include="Assets\inventario\ItemData.cs" />
