@@ -1,2 +1,2 @@
 # Whispers-in-the-Museum
-juego de ingenieros con ganas de hacer nada
+juego de un museo donde tienes que escapar de un fantasma
