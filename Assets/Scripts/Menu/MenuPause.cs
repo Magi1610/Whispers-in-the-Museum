@@ -13,7 +13,7 @@ public class PauseMenu : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); // no se destruye al cambiar escena
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -23,6 +23,9 @@ public class PauseMenu : MonoBehaviour
 
     void Update()
     {
+        if (SceneManager.GetActiveScene().name == "Menu")
+            return;
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (pausado)
@@ -37,6 +40,9 @@ public class PauseMenu : MonoBehaviour
         panelPausa.SetActive(true);
         Time.timeScale = 0f;
         pausado = true;
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     public void Continuar()
@@ -44,17 +50,34 @@ public class PauseMenu : MonoBehaviour
         panelPausa.SetActive(false);
         Time.timeScale = 1f;
         pausado = false;
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void Reiniciar()
     {
         Time.timeScale = 1f;
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+            Destroy(player);
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        panelPausa.SetActive(false);
     }
 
     public void IrMenu()
     {
         Time.timeScale = 1f;
+        panelPausa.SetActive(false);
+        pausado = false;
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+        if (player != null)
+            Destroy(player);
+
         SceneManager.LoadScene("Menu");
     }
 }
